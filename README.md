@@ -5,8 +5,8 @@ Example application created for the presentation on GopherCon Russia 2019.
 There are 3 versions of this application:
 
 - [`1.0`](1.0/cmd/) - just HTTP handler
-- [`v2.0`](2.0/cmd/) - using [Watermill](https://watermill.io/) to handle payment initialization in the background
-- [`v3.0`](3.0/) - using [Watermill CQRS component](https://watermill.io/docs/cqrs/) for initializing payments and counting bookings
+- [`2.0`](2.0/cmd/) - using [Watermill](https://watermill.io/) to handle payment initialization in the background
+- [`3.0`](3.0/) - using [Watermill CQRS component](https://watermill.io/docs/cqrs/) for initializing payments and counting bookings
 
 Database adapters (in memory in this case) and domain layer is shared by all application versions.
 
