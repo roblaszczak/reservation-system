@@ -6,7 +6,7 @@ There are 3 versions of this application:
 
 - `v1.0` - just HTTP handler
 - `v2.0` - using [Watermill](https://watermill.io/) to handle payment initialization in the background
-- `v3.0` - using CQRS component for initializing payments and counting bookings
+- `v3.0` - using [Watermill CQRS component](https://watermill.io/docs/cqrs/) for initializing payments and counting bookings
 
 Database adapters (in memory in this case) and domain layer is shared by all application versions.
 
