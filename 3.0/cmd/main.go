@@ -13,7 +13,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/pkg/errors"
-	"github.com/roblaszczak/room-reservation-system/3.0/app"
 	"github.com/roblaszczak/room-reservation-system/3.0/app/command"
 	"github.com/roblaszczak/room-reservation-system/3.0/app/listener"
 	"github.com/roblaszczak/room-reservation-system/adapters/counter"
@@ -77,16 +76,8 @@ func main() {
 			case *json.InvalidUnmarshalError:
 				return true
 			default:
+				return false
 			}
-
-			if errors.Cause(err) == app.ErrInvalidCommand {
-				return true
-			}
-			if errors.Cause(err) == app.ErrInvalidEvent {
-				return true
-			}
-
-			return false
 		},
 	)
 

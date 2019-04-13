@@ -4,11 +4,13 @@ Example application created for the presentation on GopherCon Russia 2019.
 
 There are 3 versions of this application:
 
-- `v1.0` - just HTTP handler
-- `v2.0` - using [Watermill](https://watermill.io/) to handle payment initialization in the background
-- `v3.0` - using [Watermill CQRS component](https://watermill.io/docs/cqrs/) for initializing payments and counting bookings
+- [`1.0`](1.0/cmd/) - just HTTP handler
+- [`v2.0`](2.0/cmd/) - using [Watermill](https://watermill.io/) to handle payment initialization in the background
+- [`v3.0`](3.0/) - using [Watermill CQRS component](https://watermill.io/docs/cqrs/) for initializing payments and counting bookings
 
 Database adapters (in memory in this case) and domain layer is shared by all application versions.
+
+Warning: this repository is using some Watermill unreleased features, which are still not released, like `NewPoisonQueueWithFilter` or `CorrelationIDWithAutogenerate`. They are now on `cqrs-fix` branch and will be released in `v0.4.0`.
 
 ## Up and running
 
