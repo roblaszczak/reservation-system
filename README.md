@@ -1,6 +1,6 @@
 # Room Reservation System
 
-Example application created for the presentation on GopherCon Russia 2019.
+Example application created for the presentation on [GopherCon Russia 2019 (slides)](https://speakerdeck.com/roblaszczak/event-driven-application-made-easy-with-watermill).
 
 There are 3 versions of this application:
 
