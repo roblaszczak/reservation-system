@@ -29,6 +29,13 @@ You can book a room using REST API using [https://httpie.org/](HTTPie).
 
     http POST localhost:6060/book-room RoomID=10 StartTime=2018-09-22T12:42:31Z EndTime=2018-09-22T12:42:31Z GuestsCount:=2 PaymentChannel="paypal" -v
 
+### TODO
+
+- [ ] Update Watermill to the last release (some changes to CQRS need to be merged to the Watermill's `master` from `cqrs-fix` branch)
+- [ ] Some code cleanups and TODO's fixes
+- [ ] Slides link
+- [ ] Detailed description
+
 ## Support
 
 Please join us on the `#watermill` channel on the [Gophers slack](https://gophers.slack.com/): You can get invite [here](https://gophersinvite.herokuapp.com/).

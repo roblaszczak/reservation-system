@@ -165,7 +165,7 @@ func main() {
 		}
 	})
 
-	// todo -
+	// todo - proper close support
 	go watermillRouter.Run()
 
 	go func() {
