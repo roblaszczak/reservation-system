@@ -34,7 +34,12 @@ func (b InitializePaymentHandler) NewCommand() interface{} {
 func (b InitializePaymentHandler) Handle(c interface{}) error {
 	cmd := c.(*InitializePayment)
 
-	p, err := payment.NewPayment(watermill.NewUUID(), cmd.BookingUUID, cmd.Price, cmd.PaymentChannel)
+	p, err := payment.NewPayment(
+		watermill.NewUUID(),
+		cmd.BookingUUID,
+		cmd.Price,
+		cmd.PaymentChannel,
+	)
 	if err != nil {
 		return err
 	}

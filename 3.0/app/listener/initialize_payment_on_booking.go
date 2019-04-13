@@ -20,12 +20,12 @@ func (InitializePaymentOnRoomBooked) NewEvent() interface{} {
 func (o InitializePaymentOnRoomBooked) Handle(e interface{}) error {
 	event := e.(*command.RoomBooked)
 
-	orderBeerCmd := &command.InitializePayment{
+	cmd := &command.InitializePayment{
 		BookingUUID:    event.BookingUUID,
 		RoomID:         event.RoomID,
 		Price:          event.Price,
 		PaymentChannel: event.PaymentChannel,
 	}
 
-	return o.commandBus.Send(orderBeerCmd)
+	return o.commandBus.Send(cmd)
 }

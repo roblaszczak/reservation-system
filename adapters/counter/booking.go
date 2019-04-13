@@ -20,9 +20,9 @@ func (m *MemoryBookings) IncrementBookingCounter(bookingUUID string) error {
 		// deduplicated
 		return nil
 	}
+	m.bookings[bookingUUID] = struct{}{}
 
 	m.count += 1
-	m.bookings[bookingUUID] = struct{}{}
 	return nil
 }
 

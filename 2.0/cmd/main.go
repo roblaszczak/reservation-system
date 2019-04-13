@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/Shopify/sarama"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/infrastructure/kafka"
@@ -113,15 +112,12 @@ func main() {
 }
 
 func processMessages() {
-	saramaSubscriberConfig := kafka.DefaultSaramaSubscriberConfig()
-	saramaSubscriberConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
-
 	subscriber, err := kafka.NewSubscriber(
 		kafka.SubscriberConfig{
 			Brokers:       []string{"localhost:9092"},
-			ConsumerGroup: "test_consumer_group",
+			ConsumerGroup: "some_consumer_group",
 		},
-		saramaSubscriberConfig,
+		nil,
 		kafka.DefaultMarshaler{},
 		watermillLogger,
 	)
@@ -133,12 +129,18 @@ func processMessages() {
 	if err != nil {
 		panic(err)
 	}
-	watermillRouter.AddMiddleware(watermillMiddleware.Recoverer)
+	watermillRouter.AddMiddleware(
+		watermillMiddleware.Recoverer,
+		watermillMiddleware.Retry{
+			MaxRetries: 3,
+			WaitTime:   time.Second * 10,
+		}.Middleware,
+	)
 
 	paymentsInitializer := paymentAdapters.MockInitializer{}
 	watermillRouter.AddNoPublisherHandler(
-		"BookRoom",
-		"room_bookings",
+		"book_room_handler", // handler name
+		"room_bookings",     //subscribe topic
 		subscriber,
 		func(msg *message.Message) ([]*message.Message, error) {
 			event := RoomBooked{}

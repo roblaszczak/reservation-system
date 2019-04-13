@@ -6,6 +6,7 @@ import (
 	"github.com/Shopify/sarama"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
+	"github.com/ThreeDotsLabs/watermill/components/metrics"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/infrastructure/kafka"
 	watermillMiddleware "github.com/ThreeDotsLabs/watermill/message/router/middleware"
@@ -89,6 +90,13 @@ func main() {
 		},
 	)
 
+	prometheusRegistry, closeMetricsServer := metrics.CreateRegistryAndServeHTTP(":8081")
+	defer closeMetricsServer()
+
+	// we leave the namespace and subsystem empty
+	metricsBuilder := metrics.NewPrometheusMetricsBuilder(prometheusRegistry, "", "")
+	metricsBuilder.AddPrometheusRouterMetrics(watermillRouter)
+
 	if err != nil {
 		panic(err)
 	}
@@ -97,31 +105,43 @@ func main() {
 			return watermill.NewShortUUID()
 		}),
 		poisonQueue.Middleware,
-		watermillMiddleware.Retry{MaxRetries: 1, Logger: watermillLogger}.Middleware,
+		watermillMiddleware.Retry{
+			MaxRetries: 1,
+			Logger:     watermillLogger,
+		}.Middleware,
 	)
 
+	createCommandHandler := func(
+		cb *cqrs.CommandBus,
+		eb *cqrs.EventBus,
+	) []cqrs.CommandHandler {
+		return []cqrs.CommandHandler{
+			command.NewBookRoomHandler(eb, offerRepo, bookingRepo),
+			command.NewInitializePaymentHandler(eb, paymentsInitializer),
+		}
+	}
+	createEventHandlers := func(
+		cb *cqrs.CommandBus,
+		eb *cqrs.EventBus,
+	) []cqrs.EventHandler {
+		return []cqrs.EventHandler{
+			listener.NewInitializePaymentOnRoomBooked(cb),
+			listener.NewBookingsCounterGenerator(bookingsCounter),
+		}
+	}
+
 	cqrsFacade, err := cqrs.NewFacade(cqrs.FacadeConfig{
-		CommandsTopic: "commands",
-		CommandHandlers: func(commandBus *cqrs.CommandBus, eventBus *cqrs.EventBus) []cqrs.CommandHandler {
-			return []cqrs.CommandHandler{
-				command.NewBookRoomHandler(eventBus, offerRepo, bookingRepo),
-				command.NewInitializePaymentHandler(eventBus, paymentsInitializer),
-			}
-		},
+		CommandsTopic:                 "commands",
+		CommandHandlers:               createCommandHandler,
 		CommandsPublisher:             publisher,
 		CommandsSubscriberConstructor: createSaramaSubscriber,
 		EventsTopic:                   "events",
-		EventHandlers: func(commandBus *cqrs.CommandBus, eventBus *cqrs.EventBus) []cqrs.EventHandler {
-			return []cqrs.EventHandler{
-				listener.NewInitializePaymentOnRoomBooked(commandBus),
-				listener.NewBookingsCounterGenerator(bookingsCounter),
-			}
-		},
-		EventsPublisher:             publisher,
-		EventsSubscriberConstructor: createSaramaSubscriber,
-		Router:                      watermillRouter,
-		Logger:                      watermillLogger,
-		CommandEventMarshaler:       cqrs.JSONMarshaler{},
+		EventHandlers:                 createEventHandlers,
+		EventsPublisher:               publisher,
+		EventsSubscriberConstructor:   createSaramaSubscriber,
+		Router:                        watermillRouter,
+		Logger:                        watermillLogger,
+		CommandEventMarshaler:         cqrs.JSONMarshaler{},
 	})
 	if err != nil {
 		panic(err)
